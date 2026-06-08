@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<link rel="manifest" href="manifest.json">
+
+</head>
+
+<body>
+
+<h2>ABSENSI QR</h2>
+	
+<div id="reader"></div>
+
+<div id="result"></div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwGdEaK_FZXxgx6KGDie-1v9NwwRnJS5MhI6X_tCbb2NOhMI-uwPuopbQyZQTwYkTLJ/exec";
+
+function onScanSuccess(decodedText) {
+
+    const data =
+      decodedText.split("|");
+
+    const employeeId = data[0];
+    const name = data[1];
+
+    const now = new Date();
+
+    const payload = {
+
+      name: name,
+
+      date:
+        now.toLocaleDateString(),
+
+      time:
+        now.toLocaleTimeString(),
+
+      status: "IN"
+
+    };
+
+    fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify(payload)
+
+    })
+    .then(res => res.json())
+    .then(() => {
+
+      document.getElementById("result")
+      .innerHTML =
+      "Absensi berhasil : " + name;
+
+    });
+
+}
+
+const scanner =
+new Html5QrcodeScanner(
+"reader",
+{
+fps:10,	
+qrbox:250
+}
+);
+
+scanner.render(onScanSuccess);
+
+</script>
+
+</body>
+</html>	

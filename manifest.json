@@ -1,0 +1,6 @@
+{
+  "name":"Absensi QR",
+  "short_name":"Absensi",
+  "start_url":"./",
+  "display":"standalone"
+}
