@@ -188,17 +188,15 @@ async function onScanSuccess(decodedText){
     }
     catch(error){
 
-        document.getElementById("result").innerHTML =
+    console.error(error);
 
-        `
-        <div class="error">
-            ❌ Gagal menyimpan data
-        </div>
-        `;
-
-        console.error(error);
-
-    }
+    document.getElementById("result").innerHTML =
+    `
+    <div class="error">
+        ❌ ${error}
+    </div>
+    `;
+}
 
     setTimeout(()=>{
 
