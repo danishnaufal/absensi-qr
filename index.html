@@ -1,81 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="utf-8">
+<title>Absensi QR</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <link rel="manifest" href="manifest.json">
 
-</head>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    padding:20px;
+}
 
+#reader{
+    width:350px;
+    margin:auto;
+}
+
+#result{
+    margin-top:20px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.success{
+    color:green;
+}
+
+.error{
+    color:red;
+}
+</style>
+
+</head>
 <body>
 
 <h2>ABSENSI QR</h2>
-	
+
 <div id="reader"></div>
 
 <div id="result"></div>
 
 <script>
 
+// ===============================
+// GANTI DENGAN URL APPS SCRIPT
+// ===============================
+
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwGdEaK_FZXxgx6KGDie-1v9NwwRnJS5MhI6X_tCbb2NOhMI-uwPuopbQyZQTwYkTLJ/exec";
 
-function onScanSuccess(decodedText) {
+// ===============================
+// VARIABLE CONTROL
+// ===============================
 
-    const data =
-      decodedText.split("|");
+let scanner;
+let scanLocked = false;
 
-    const employeeId = data[0];
-    const name = data[1];
+let lastScan = "";
+let lastScanTime = 0;
+
+// ===============================
+// BEEP SOUND
+// ===============================
+
+function playBeep(){
+
+    const audio = new Audio(
+      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
+    );
+
+    audio.play();
+}
+
+// ===============================
+// START SCANNER
+// ===============================
+
+function startScanner(){
+
+    scanner = new Html5QrcodeScanner(
+        "reader",
+        {
+            fps:10,
+            qrbox:250
+        },
+        false
+    );
+
+    scanner.render(onScanSuccess);
+}
+
+// ===============================
+// SCAN SUCCESS
+// ===============================
+
+async function onScanSuccess(decodedText){
+
+    if(scanLocked){
+        return;
+    }
+
+    const nowMillis = Date.now();
+
+    // Anti duplicate scan
+
+    if(
+        decodedText === lastScan &&
+        nowMillis - lastScanTime < 10000
+    ){
+        return;
+    }
+
+    scanLocked = true;
+
+    lastScan = decodedText;
+    lastScanTime = nowMillis;
+
+    try{
+
+        scanner.clear();
+
+    }catch(e){
+        console.log(e);
+    }
+
+    const parts = decodedText.split("|");
+
+    const employeeId =
+        parts[0] || "";
+
+    const name =
+        parts[1] || "Unknown";
 
     const now = new Date();
 
     const payload = {
 
-      name: name,
+        employeeId: employeeId,
 
-      date:
-        now.toLocaleDateString(),
+        name: name,
 
-      time:
-        now.toLocaleTimeString(),
+        date: now.toLocaleDateString(),
 
-      status: "IN"
+        time: now.toLocaleTimeString(),
+
+        status: "IN"
 
     };
 
-    fetch(API_URL, {
+    try{
 
-      method: "POST",
+        const response = await fetch(
+            API_URL,
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(payload)
+            }
+        );
 
-      body: JSON.stringify(payload)
+        const result =
+            await response.json();
 
-    })
-    .then(res => res.json())
-    .then(() => {
+        playBeep();
 
-      document.getElementById("result")
-      .innerHTML =
-      "Absensi berhasil : " + name;
+        document.getElementById("result").innerHTML =
 
-    });
+        `
+        <div class="success">
+            ✅ ABSENSI BERHASIL
+            <br><br>
+            ${name}
+            <br>
+            ${payload.time}
+            <br>
+            ${payload.status}
+        </div>
+        `;
+
+    }
+    catch(error){
+
+        document.getElementById("result").innerHTML =
+
+        `
+        <div class="error">
+            ❌ Gagal menyimpan data
+        </div>
+        `;
+
+        console.error(error);
+
+    }
+
+    setTimeout(()=>{
+
+        scanLocked = false;
+
+        document.getElementById("reader").innerHTML = "";
+
+        startScanner();
+
+    },3000);
 
 }
 
-const scanner =
-new Html5QrcodeScanner(
-"reader",
-{
-fps:10,	
-qrbox:250
-}
-);
+// ===============================
+// INIT
+// ===============================
 
-scanner.render(onScanSuccess);
+startScanner();
 
 </script>
 
 </body>
-</html>	
+</html>
