@@ -178,6 +178,7 @@ Fast • Simple • Reliable
 <div id="result" class="info">
     Ready to Scan
 </div>
+
 <div id="recentContainer">
 
     <h3>Recent Attendance</h3>
@@ -189,8 +190,13 @@ Fast • Simple • Reliable
         </div>
 
     </div>
+    
+    <button onclick="clearRecentAttendance()">
+        Clear History
+    </button>
 
 </div>
+
 
 <div class="footer">
     QR Attendance v1.0
@@ -215,7 +221,10 @@ let scanLocked = false;
 
 let lastScan = "";
 let lastScanTime = 0;
-let recentScans = [];
+let recentScans =
+    JSON.parse(
+        localStorage.getItem("recentScans")
+    ) || [];
 
 // ========================================
 // BEEP
@@ -295,7 +304,20 @@ function renderRecentAttendance(){
 
         </div>
         `
+
         ).join("");
+
+}
+
+function clearRecentAttendance(){
+
+    localStorage.removeItem(
+        "recentScans"
+    );
+
+    recentScans = [];
+
+    renderRecentAttendance();
 
 }
 
@@ -466,6 +488,26 @@ async function saveAttendance(
 
         playBeep();
 
+        recentScans.unshift({
+
+            name:name,
+
+            time:payload.time,
+
+            status:status
+
+        });
+
+        recentScans =
+            recentScans.slice(0,5);
+
+        localStorage.setItem(
+            "recentScans",
+            JSON.stringify(recentScans)
+        );
+
+        renderRecentAttendance();
+
         document.getElementById("result").innerHTML =
         `
         <div class="success">
@@ -512,21 +554,6 @@ async function saveAttendance(
 
     },3000);
 
-    recentScans.unshift({
-
-        name:name,
-
-        time:payload.time,
-
-        status:status
-
-    });
-
-    recentScans =
-        recentScans.slice(0,5);
-
-    renderRecentAttendance();
-
 }
 
 // ========================================
@@ -534,6 +561,8 @@ async function saveAttendance(
 // ========================================
 
 startScanner();
+
+renderRecentAttendance();
 
 </script>
 
