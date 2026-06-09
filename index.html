@@ -1,41 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Absensi QR</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
-<link rel="manifest" href="manifest.json">
 
 <style>
+
 body{
     font-family: Arial, sans-serif;
     text-align:center;
     padding:20px;
+    background:#f5f5f5;
+}
+
+h2{
+    margin-bottom:20px;
 }
 
 #reader{
     width:350px;
+    max-width:100%;
     margin:auto;
 }
 
 #result{
     margin-top:20px;
-    font-size:22px;
-    font-weight:bold;
+}
+
+.info{
+    font-size:18px;
 }
 
 .success{
     color:green;
+    font-size:24px;
+    font-weight:bold;
 }
 
 .error{
     color:red;
+    font-size:20px;
+    font-weight:bold;
 }
-</style>
 
+.employee-name{
+    font-size:28px;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+
+.btn{
+    padding:15px 25px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin:10px;
+    font-size:18px;
+}
+
+.btn-in{
+    background:#4CAF50;
+    color:white;
+}
+
+.btn-out{
+    background:#f44336;
+    color:white;
+}
+
+</style>
 </head>
 <body>
 
@@ -43,61 +80,122 @@ body{
 
 <div id="reader"></div>
 
-<div id="result"></div>
+<div id="result" class="info">
+    Silakan scan QR Code
+</div>
 
 <script>
 
-// ===============================
-// GANTI DENGAN URL APPS SCRIPT
-// ===============================
+// ========================================
+// APPS SCRIPT URL
+// ========================================
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwGdEaK_FZXxgx6KGDie-1v9NwwRnJS5MhI6X_tCbb2NOhMI-uwPuopbQyZQTwYkTLJ/exec";
 
-// ===============================
-// VARIABLE CONTROL
-// ===============================
+// ========================================
 
-let scanner;
+let scanner = null;
+
 let scanLocked = false;
 
 let lastScan = "";
 let lastScanTime = 0;
 
-// ===============================
-// BEEP SOUND
-// ===============================
+// ========================================
+// BEEP
+// ========================================
 
 function playBeep(){
 
-    const audio = new Audio(
-      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
-    );
+    try{
 
-    audio.play();
+        const ctx =
+            new(window.AudioContext ||
+            window.webkitAudioContext)();
+
+        const osc =
+            ctx.createOscillator();
+
+        osc.frequency.value = 1000;
+
+        osc.connect(ctx.destination);
+
+        osc.start();
+
+        setTimeout(()=>{
+            osc.stop();
+        },150);
+
+    }catch(e){}
+
 }
 
-// ===============================
+// ========================================
 // START SCANNER
-// ===============================
+// ========================================
 
-function startScanner(){
+async function startScanner(){
 
-    scanner = new Html5QrcodeScanner(
-        "reader",
-        {
-            fps:10,
-            qrbox:250
-        },
-        false
-    );
+    try{
 
-    scanner.render(onScanSuccess);
+        document.getElementById("reader").innerHTML = "";
+
+        scanner = new Html5Qrcode("reader");
+
+        await scanner.start(
+            {
+                facingMode:"environment"
+            },
+            {
+                fps:10,
+                qrbox:250
+            },
+            onScanSuccess
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById("result").innerHTML =
+        `
+        <div class="error">
+            Gagal membuka kamera
+        </div>
+        `;
+
+    }
+
 }
 
-// ===============================
-// SCAN SUCCESS
-// ===============================
+// ========================================
+// STOP SCANNER
+// ========================================
+
+async function stopScanner(){
+
+    try{
+
+        if(scanner){
+
+            await scanner.stop();
+
+            await scanner.clear();
+
+        }
+
+    }catch(error){
+
+        console.log(error);
+
+    }
+
+}
+
+// ========================================
+// QR SUCCESS
+// ========================================
 
 async function onScanSuccess(decodedText){
 
@@ -105,13 +203,11 @@ async function onScanSuccess(decodedText){
         return;
     }
 
-    const nowMillis = Date.now();
-
-    // Anti duplicate scan
+    const now = Date.now();
 
     if(
         decodedText === lastScan &&
-        nowMillis - lastScanTime < 10000
+        (now - lastScanTime) < 30000
     ){
         return;
     }
@@ -119,17 +215,12 @@ async function onScanSuccess(decodedText){
     scanLocked = true;
 
     lastScan = decodedText;
-    lastScanTime = nowMillis;
+    lastScanTime = now;
 
-    try{
+    await stopScanner();
 
-        scanner.clear();
-
-    }catch(e){
-        console.log(e);
-    }
-
-    const parts = decodedText.split("|");
+    const parts =
+        decodedText.split("|");
 
     const employeeId =
         parts[0] || "";
@@ -137,82 +228,123 @@ async function onScanSuccess(decodedText){
     const name =
         parts[1] || "Unknown";
 
+    document.getElementById("result").innerHTML = `
+        <div class="employee-name">
+            ${name}
+        </div>
+
+        <button
+            class="btn btn-in"
+            onclick="saveAttendance(
+                '${employeeId}',
+                '${name}',
+                'IN'
+            )">
+            SHIFT IN
+        </button>
+
+        <button
+            class="btn btn-out"
+            onclick="saveAttendance(
+                '${employeeId}',
+                '${name}',
+                'OUT'
+            )">
+            SHIFT OUT
+        </button>
+    `;
+
+}
+
+// ========================================
+// SAVE
+// ========================================
+
+async function saveAttendance(
+    employeeId,
+    name,
+    status
+){
+
     const now = new Date();
 
     const payload = {
 
         employeeId: employeeId,
-
         name: name,
-
-        date: now.toLocaleDateString(),
-
-        time: now.toLocaleTimeString(),
-
-        status: "IN"
+        date: now.toLocaleDateString("id-ID"),
+        time: now.toLocaleTimeString("id-ID"),
+        status: status
 
     };
 
+    document.getElementById("result").innerHTML =
+    "⏳ Menyimpan...";
+
     try{
 
-        const response = await fetch(
+        await fetch(
             API_URL,
             {
                 method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
+                mode:"no-cors",
                 body:JSON.stringify(payload)
             }
         );
 
-        const result =
-            await response.json();
-
         playBeep();
 
         document.getElementById("result").innerHTML =
-
         `
         <div class="success">
             ✅ ABSENSI BERHASIL
+
             <br><br>
+
             ${name}
+
             <br>
+
+            SHIFT ${status}
+
+            <br>
+
             ${payload.time}
-            <br>
-            ${payload.status}
         </div>
         `;
 
     }
     catch(error){
 
-    console.error(error);
+        document.getElementById("result").innerHTML =
+        `
+        <div class="error">
+            ❌ Gagal menyimpan
+        </div>
+        `;
 
-    document.getElementById("result").innerHTML =
-    `
-    <div class="error">
-        ❌ ${error}
-    </div>
-    `;
     }
 
-    setTimeout(()=>{
+    setTimeout(async()=>{
 
         scanLocked = false;
 
-        document.getElementById("reader").innerHTML = "";
+        document.getElementById("result").innerHTML =
+        `
+        <div class="info">
+            Silakan scan QR Code
+        </div>
+        `;
 
-        startScanner();
+        await startScanner();
 
     },3000);
 
 }
 
-// ===============================
+// ========================================
 // INIT
-// ===============================
+// ========================================
 
 startScanner();
 
