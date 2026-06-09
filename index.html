@@ -477,14 +477,50 @@ async function saveAttendance(
 
     try{
 
-        await fetch(
-            API_URL,
-            {
-                method:"POST",
-                mode:"no-cors",
-                body:JSON.stringify(payload)
-            }
-        );
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method:"POST",
+                    body:JSON.stringify(payload)
+                }
+            );
+
+        const result =
+            await response.json();
+        
+        if(!result.success){
+
+            document.getElementById(
+                "result"
+            ).innerHTML =
+
+            `
+            <div class="error">
+                ⚠ ${result.message}
+            </div>
+            `;
+
+            setTimeout(async()=>{
+
+                scanLocked = false;
+
+                document.getElementById(
+                    "result"
+                ).innerHTML =
+                `
+                <div class="info">
+                    Ready to Scan
+                </div>
+                `;
+
+                await startScanner();
+
+            },3000);
+
+            return;
+
+        }
 
         playBeep();
 
