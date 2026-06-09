@@ -1,284 +1,287 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Absensi QR</title>
+    <title>Absensi QR</title>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-<style>
-:root{
-    --primary:#2563eb;
-    --success:#16a34a;
-    --danger:#dc2626;
-    --bg:#f3f4f6;
-    --card:#ffffff;
-}
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+        }
 
-body{
-    font-family:Arial,sans-serif;
-    background:var(--bg);
-    padding:20px;
-    margin:0;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            padding: 20px;
+            margin: 0;
+        }
 
-.app-card{
-    max-width:500px;
-    margin:auto;
-    background:var(--card);
-    padding:20px;
-    border-radius:20px;
-    box-shadow:0 5px 20px rgba(0,0,0,.12);
-}
+        .app-card {
+            max-width: 500px;
+            margin: auto;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .12);
+        }
 
-h2{
-    text-align:center;
-    color:var(--primary);
-    margin-bottom:5px;
-}
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
 
-.subtitle{
-    text-align:center;
-    color:#666;
-    margin-top:0;
-    margin-bottom:20px;
-}
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
 
-#reader{
-    width:100%;
-    border:2px solid #e5e7eb;
-    border-radius:15px;
-    overflow:hidden;
-}
+        #reader {
+            width: 100%;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+        }
 
-#result{
-    margin-top:20px;
-}
+        #result {
+            margin-top: 20px;
+        }
 
-.info{
-    background:#f9fafb;
-    padding:15px;
-    border-radius:12px;
-    text-align:center;
-    font-weight:bold;
-}
+        .info {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
 
-.success{
-    background:#ecfdf5;
-    border:1px solid #16a34a;
-    border-radius:12px;
-    padding:15px;
-    color:#166534;
-    font-weight:bold;
-}
+        .success {
+            background: #ecfdf5;
+            border: 1px solid #16a34a;
+            border-radius: 12px;
+            padding: 15px;
+            color: #166534;
+            font-weight: bold;
+        }
 
-.error{
-    background:#fef2f2;
-    border:1px solid #dc2626;
-    border-radius:12px;
-    padding:15px;
-    color:#991b1b;
-    font-weight:bold;
-}
+        .error {
+            background: #fef2f2;
+            border: 1px solid #dc2626;
+            border-radius: 12px;
+            padding: 15px;
+            color: #991b1b;
+            font-weight: bold;
+        }
 
-.employee-name{
-    font-size:28px;
-    font-weight:bold;
-    margin-bottom:20px;
-    text-align:center;
-}
+        .employee-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-.btn{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    margin-top:10px;
-    font-size:18px;
-    font-weight:bold;
-}
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-.btn-in{
-    background:var(--success);
-    color:white;
-}
+        .btn-in {
+            background: var(--success);
+            color: white;
+        }
 
-.btn-out{
-    background:var(--danger);
-    color:white;
-}
+        .btn-out {
+            background: var(--danger);
+            color: white;
+        }
 
-.footer{
-    margin-top:20px;
-    text-align:center;
-    color:#999;
-    font-size:12px;
-}
-#recentContainer{
-    margin-top:20px;
-    text-align:left;
-}
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
 
-#recentContainer h3{
-    margin-bottom:10px;
-    color:#333;
-}
+        #recentContainer {
+            margin-top: 20px;
+            text-align: left;
+        }
 
-.recent-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px;
-    margin-bottom:8px;
-    border-radius:10px;
-    background:#f9fafb;
-    border:1px solid #e5e7eb;
-}
+        #recentContainer h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
 
-.recent-name{
-    font-weight:bold;
-}
+        .recent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
 
-.recent-time{
-    color:#666;
-    font-size:14px;
-}
+        .recent-name {
+            font-weight: bold;
+        }
 
-.status-in{
-    color:#16a34a;
-    font-weight:bold;
-}
+        .recent-time {
+            color: #666;
+            font-size: 14px;
+        }
 
-.status-out{
-    color:#dc2626;
-    font-weight:bold;
-}
+        .status-in {
+            color: #16a34a;
+            font-weight: bold;
+        }
 
-.empty{
-    color:#999;
-    text-align:center;
-    padding:10px;
-}
-</style>
+        .status-out {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #999;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
 </head>
+
 <body>
-<div class="app-card">
+    <div class="app-card">
 
-<h2>QR Attendance</h2>
+        <h2>QR Attendance</h2>
 
-<p class="subtitle">
-Fast • Simple • Reliable
-</p>
+        <p class="subtitle">
+            Fast • Simple • Reliable
+        </p>
 
-<div id="reader"></div>
+        <div id="reader"></div>
 
-<div id="result" class="info">
-    Ready to Scan
-</div>
+        <div id="result" class="info">
+            Ready to Scan
+        </div>
 
-<div id="recentContainer">
+        <div id="recentContainer">
 
-    <h3>Recent Attendance</h3>
+            <h3>Recent Attendance</h3>
 
-    <div id="recentAttendance">
+            <div id="recentAttendance">
 
-        <div class="empty">
-            No attendance yet
+                <div class="empty">
+                    No attendance yet
+                </div>
+
+            </div>
+
+            <button onclick="clearRecentAttendance()">
+                Clear History
+            </button>
+
+        </div>
+
+
+        <div class="footer">
+            QR Attendance v1.0
         </div>
 
     </div>
-    
-    <button onclick="clearRecentAttendance()">
-        Clear History
-    </button>
 
-</div>
+    <script>
 
+        // ========================================
+        // APPS SCRIPT URL
+        // ========================================
 
-<div class="footer">
-    QR Attendance v1.0
-</div>
+        const API_URL =
+            "https://script.google.com/macros/s/AKfycbwGdEaK_FZXxgx6KGDie-1v9NwwRnJS5MhI6X_tCbb2NOhMI-uwPuopbQyZQTwYkTLJ/exec";
 
-</div>
+        // ========================================
 
-<script>
+        let scanner = null;
 
-// ========================================
-// APPS SCRIPT URL
-// ========================================
+        let scanLocked = false;
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbwGdEaK_FZXxgx6KGDie-1v9NwwRnJS5MhI6X_tCbb2NOhMI-uwPuopbQyZQTwYkTLJ/exec";
+        let lastScan = "";
+        let lastScanTime = 0;
+        let recentScans =
+            JSON.parse(
+                localStorage.getItem("recentScans")
+            ) || [];
 
-// ========================================
+        // ========================================
+        // BEEP
+        // ========================================
 
-let scanner = null;
+        function playBeep() {
 
-let scanLocked = false;
+            try {
 
-let lastScan = "";
-let lastScanTime = 0;
-let recentScans =
-    JSON.parse(
-        localStorage.getItem("recentScans")
-    ) || [];
+                const ctx =
+                    new (window.AudioContext ||
+                        window.webkitAudioContext)();
 
-// ========================================
-// BEEP
-// ========================================
+                const osc =
+                    ctx.createOscillator();
 
-function playBeep(){
+                osc.frequency.value = 1000;
 
-    try{
+                osc.connect(ctx.destination);
 
-        const ctx =
-            new(window.AudioContext ||
-            window.webkitAudioContext)();
+                osc.start();
 
-        const osc =
-            ctx.createOscillator();
+                setTimeout(() => {
+                    osc.stop();
+                }, 150);
 
-        osc.frequency.value = 1000;
+            } catch (e) { }
 
-        osc.connect(ctx.destination);
+        }
 
-        osc.start();
+        function renderRecentAttendance() {
 
-        setTimeout(()=>{
-            osc.stop();
-        },150);
+            const container =
+                document.getElementById(
+                    "recentAttendance"
+                );
 
-    }catch(e){}
+            if (recentScans.length === 0) {
 
-}
-
-function renderRecentAttendance(){
-
-    const container =
-        document.getElementById(
-            "recentAttendance"
-        );
-
-    if(recentScans.length === 0){
-
-        container.innerHTML =
-        `
+                container.innerHTML =
+                    `
         <div class="empty">
             No attendance yet
         </div>
         `;
 
-        return;
-    }
+                return;
+            }
 
-    container.innerHTML =
-        recentScans.map(item =>
+            container.innerHTML =
+                recentScans.map(item =>
 
-        `
+                    `
         <div class="recent-item">
 
             <div>
@@ -295,131 +298,131 @@ function renderRecentAttendance(){
 
             <div class="
                 ${item.status === 'IN'
-                    ? 'status-in'
-                    : 'status-out'}
+                        ? 'status-in'
+                        : 'status-out'}
             ">
                 ${item.status === 'IN'
-                    ? '🟢 IN'
-                    : '🔴 OUT'}
+                        ? '🟢 IN'
+                        : '🔴 OUT'}
             </div>
 
         </div>
         `
 
-        ).join("");
+                ).join("");
 
-}
+        }
 
-function clearRecentAttendance(){
+        function clearRecentAttendance() {
 
-    localStorage.removeItem(
-        "recentScans"
-    );
+            localStorage.removeItem(
+                "recentScans"
+            );
 
-    recentScans = [];
+            recentScans = [];
 
-    renderRecentAttendance();
+            renderRecentAttendance();
 
-}
+        }
 
-// ========================================
-// START SCANNER
-// ========================================
+        // ========================================
+        // START SCANNER
+        // ========================================
 
-async function startScanner(){
+        async function startScanner() {
 
-    try{
+            try {
 
-        document.getElementById("reader").innerHTML = "";
+                document.getElementById("reader").innerHTML = "";
 
-        scanner = new Html5Qrcode("reader");
+                scanner = new Html5Qrcode("reader");
 
-        await scanner.start(
-            {
-                facingMode:"environment"
-            },
-            {
-                fps:10,
-                qrbox:250
-            },
-            onScanSuccess
-        );
+                await scanner.start(
+                    {
+                        facingMode: "environment"
+                    },
+                    {
+                        fps: 10,
+                        qrbox: 250
+                    },
+                    onScanSuccess
+                );
 
-    }catch(error){
+            } catch (error) {
 
-        console.error(error);
+                console.error(error);
 
-        document.getElementById("result").innerHTML =
-        `
+                document.getElementById("result").innerHTML =
+                    `
         <div class="error">
             Gagal membuka kamera
         </div>
         `;
 
-    }
-
-}
-
-// ========================================
-// STOP SCANNER
-// ========================================
-
-async function stopScanner(){
-
-    try{
-
-        if(scanner){
-
-            await scanner.stop();
-
-            await scanner.clear();
+            }
 
         }
 
-    }catch(error){
+        // ========================================
+        // STOP SCANNER
+        // ========================================
 
-        console.log(error);
+        async function stopScanner() {
 
-    }
+            try {
 
-}
+                if (scanner) {
 
-// ========================================
-// QR SUCCESS
-// ========================================
+                    await scanner.stop();
 
-async function onScanSuccess(decodedText){
+                    await scanner.clear();
 
-    if(scanLocked){
-        return;
-    }
+                }
 
-    const now = Date.now();
+            } catch (error) {
 
-    if(
-        decodedText === lastScan &&
-        (now - lastScanTime) < 30000
-    ){
-        return;
-    }
+                console.log(error);
 
-    scanLocked = true;
+            }
 
-    lastScan = decodedText;
-    lastScanTime = now;
+        }
 
-    await stopScanner();
+        // ========================================
+        // QR SUCCESS
+        // ========================================
 
-    const parts =
-        decodedText.split("|");
+        async function onScanSuccess(decodedText) {
 
-    const employeeId =
-        parts[0] || "";
+            if (scanLocked) {
+                return;
+            }
 
-    const name =
-        parts[1] || "Unknown";
+            const now = Date.now();
 
-    document.getElementById("result").innerHTML = `
+            if (
+                decodedText === lastScan &&
+                (now - lastScanTime) < 30000
+            ) {
+                return;
+            }
+
+            scanLocked = true;
+
+            lastScan = decodedText;
+            lastScanTime = now;
+
+            await stopScanner();
+
+            const parts =
+                decodedText.split("|");
+
+            const employeeId =
+                parts[0] || "";
+
+            const name =
+                parts[1] || "Unknown";
+
+            document.getElementById("result").innerHTML = `
         <div class="employee-name">
             ${name}
         </div>
@@ -445,108 +448,122 @@ async function onScanSuccess(decodedText){
         </button>
     `;
 
-}
+        }
 
-// ========================================
-// SAVE
-// ========================================
+        // ========================================
+        // SAVE
+        // ========================================
 
-async function saveAttendance(
-    employeeId,
-    name,
-    status
-){
+        async function saveAttendance(
+            employeeId,
+            name,
+            status
+        ) {
 
-    const now = new Date();
+            const now = new Date();
 
-    const payload = {
+            const date =
+                now.getFullYear() + "-" +
+                String(now.getMonth() + 1).padStart(2, "0") + "-" +
+                String(now.getDate()).padStart(2, "0");
 
-        employeeId: employeeId,
-        name: name,
-        date: now.toLocaleDateString("id-ID"),
-        time: now.toLocaleTimeString("id-ID"),
-        status: status
+            const time =
+                String(now.getHours()).padStart(2, "0") + ":" +
+                String(now.getMinutes()).padStart(2, "0") + ":" +
+                String(now.getSeconds()).padStart(2, "0");
 
-    };
+            const payload = {
 
-    document.getElementById("result").innerHTML =
-    `
+                employeeId: employeeId,
+
+                name: name,
+
+                date: date,
+
+                time: time,
+
+                status: status
+
+            };
+
+            document.getElementById("result").innerHTML =
+                `
     <div class="info">
         ⏳ Saving Attendance...
     </div>
     `;
 
-    try{
+            try {
 
-        const response =
-            await fetch(
-                API_URL,
-                {
-                    method:"POST",
-                    body:JSON.stringify(payload)
-                }
-            );
+                const response =
+                    await fetch(
+                        API_URL,
+                        {
+                            method: "POST",
+                            body: JSON.stringify(payload)
+                        }
+                    );
 
-        const result =
-            await response.json();
-        
-        if(!result.success){
+                const result =
+                    await response.json();
 
-            document.getElementById(
-                "result"
-            ).innerHTML =
+                if (!result.success) {
 
-            `
+                    document.getElementById(
+                        "result"
+                    ).innerHTML =
+
+                        `
             <div class="error">
                 ⚠ ${result.message}
             </div>
             `;
 
-            setTimeout(async()=>{
+                    setTimeout(async () => {
 
-                scanLocked = false;
+                        scanLocked = false;
 
-                document.getElementById(
-                    "result"
-                ).innerHTML =
-                `
+                        document.getElementById(
+                            "result"
+                        ).innerHTML =
+                            `
                 <div class="info">
                     Ready to Scan
                 </div>
                 `;
 
-                await startScanner();
+                        await startScanner();
 
-            },3000);
+                    }, 3000);
 
-            return;
+                    return;
 
-        }
+                }
 
-        playBeep();
+                playBeep();
 
-        recentScans.unshift({
+                recentScans.unshift({
 
-            name:name,
+                    name: name,
 
-            time:payload.time,
+                    time: payload.time,
 
-            status:status
+                    status: status
 
-        });
+                });
 
-        recentScans =
-            recentScans.slice(0,5);
+                recentScans =
+                    recentScans.slice(0, 5);
 
-        localStorage.setItem(
-            "recentScans",
-            JSON.stringify(recentScans)
-        );
+                localStorage.setItem(
+                    "recentScans",
+                    JSON.stringify(recentScans)
+                );
 
-        renderRecentAttendance();
+                renderRecentAttendance();
 
-        document.getElementById("result").innerHTML =
-        `
+                document.getElementById("result").innerHTML =
+                    `
         <div class="success">
 
             <h3>✅ Attendance Recorded</h3>
@@ -555,16 +572,18 @@ async function saveAttendance(
 
             <p>Shift ${status}</p>
 
+            <p><strong>${result.note}</strong></p>
+
             <p>${payload.time}</p>
 
         </div>
         `;
 
-    }
-    catch(error){
+            }
+            catch (error) {
 
-        document.getElementById("result").innerHTML =
-        `
+                document.getElementById("result").innerHTML =
+                    `
         <div class="error">
 
             <h3>❌ Failed</h3>
@@ -574,34 +593,35 @@ async function saveAttendance(
         </div>
         `;
 
-    }
+            }
 
-    setTimeout(async()=>{
+            setTimeout(async () => {
 
-        scanLocked = false;
+                scanLocked = false;
 
-        document.getElementById("result").innerHTML =
-        `
+                document.getElementById("result").innerHTML =
+                    `
         <div class="info">
             Silakan scan QR Code
         </div>
         `;
 
-        await startScanner();
+                await startScanner();
 
-    },3000);
+            }, 3000);
 
-}
+        }
 
-// ========================================
-// INIT
-// ========================================
+        // ========================================
+        // INIT
+        // ========================================
 
-startScanner();
+        startScanner();
 
-renderRecentAttendance();
+        renderRecentAttendance();
 
-</script>
+    </script>
 
 </body>
+
 </html>
