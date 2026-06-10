@@ -12,16 +12,43 @@
 
     <style>
         :root {
+
             --primary: #2563eb;
             --success: #16a34a;
             --danger: #dc2626;
+
             --bg: #f3f4f6;
             --card: #ffffff;
+
+            --text: #111827;
+            --text-secondary: #6b7280;
+
+            --border: #e5e7eb;
+
+            --recent-bg: #f9fafb;
+
+        }
+
+        body.dark {
+
+            --bg: #111827;
+
+            --card: #1f2937;
+
+            --text: #f9fafb;
+
+            --text-secondary: #9ca3af;
+
+            --border: #374151;
+
+            --recent-bg: #374151;
+
         }
 
         body {
             font-family: Arial, sans-serif;
             background: var(--bg);
+            color: var(--text);
             padding: 20px;
             margin: 0;
         }
@@ -43,7 +70,7 @@
 
         .subtitle {
             text-align: center;
-            color: #666;
+            color: var(--text-secondary);
             margin-top: 0;
             margin-bottom: 20px;
         }
@@ -60,7 +87,7 @@
         }
 
         .info {
-            background: #f9fafb;
+            background: var(--recent-bg);
             padding: 15px;
             border-radius: 12px;
             text-align: center;
@@ -92,6 +119,30 @@
             text-align: center;
         }
 
+        .employee-card {
+            text-align: center;
+        }
+
+        .employee-avatar {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .employee-id {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+        }
+
         .btn {
             width: 100%;
             padding: 15px;
@@ -113,6 +164,26 @@
             color: white;
         }
 
+        .btn-clear {
+
+            width: 100%;
+
+            border: none;
+
+            background: #374151;
+
+            color: white;
+
+            padding: 10px;
+
+            border-radius: 10px;
+
+            margin-top: 10px;
+
+            cursor: pointer;
+
+        }
+
         .footer {
             margin-top: 20px;
             text-align: center;
@@ -127,7 +198,7 @@
 
         #recentContainer h3 {
             margin-bottom: 10px;
-            color: #333;
+            color: var(--text-secondary);
         }
 
         .recent-item {
@@ -137,8 +208,8 @@
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 10px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--recent-bg);
+            border: 1px solid var(--border);
         }
 
         .recent-name {
@@ -146,7 +217,7 @@
         }
 
         .recent-time {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
@@ -165,17 +236,51 @@
             text-align: center;
             padding: 10px;
         }
+
+        .theme-toggle {
+
+            text-align: center;
+
+            margin-bottom: 15px;
+
+        }
+
+        .btn-theme {
+
+            border: none;
+
+            background: #374151;
+
+            color: white;
+
+            padding: 8px 15px;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+        }
     </style>
 </head>
 
 <body>
     <div class="app-card">
 
-        <h2>QR Attendance</h2>
+        <h2>📋 Attendance Scanner</h2>
 
         <p class="subtitle">
-            Fast • Simple • Reliable
+            Scan • Record • Track
         </p>
+
+        <div class="theme-toggle">
+
+            <button id="themeBtn" class="btn-theme" onclick="toggleTheme()">
+
+                🌙 Dark Mode
+
+            </button>
+
+        </div>
 
         <div id="reader"></div>
 
@@ -195,15 +300,17 @@
 
             </div>
 
-            <button onclick="clearRecentAttendance()">
-                Clear History
+            <button class="btn-clear" onclick="clearRecentAttendance()">
+
+                🗑 Clear History
+
             </button>
 
         </div>
 
 
         <div class="footer">
-            QR Attendance v1.0
+            QR Attendance v1.1
         </div>
 
     </div>
@@ -325,6 +432,7 @@
 
         }
 
+
         // ========================================
         // START SCANNER
         // ========================================
@@ -416,6 +524,23 @@
             const parts =
                 decodedText.split("|");
 
+            if (parts.length < 2) {
+
+                document.getElementById("result").innerHTML =
+
+                    `
+    <div class="error">
+        Invalid QR Code
+    </div>
+    `;
+
+                scanLocked = false;
+
+                await startScanner();
+
+                return;
+            }
+
             const employeeId =
                 parts[0] || "";
 
@@ -423,9 +548,22 @@
                 parts[1] || "Unknown";
 
             document.getElementById("result").innerHTML = `
-        <div class="employee-name">
-            ${name}
-        </div>
+
+<div class="employee-card">
+
+    <div class="employee-avatar">
+        🪪
+    </div>
+
+    <div class="employee-name">
+        ${name}
+    </div>
+
+    <div class="employee-id">
+        ${employeeId}
+    </div>
+
+    <div class="action-buttons">
 
         <button
             class="btn btn-in"
@@ -434,7 +572,9 @@
                 '${name}',
                 'IN'
             )">
-            SHIFT IN
+
+            🟢 SHIFT IN
+
         </button>
 
         <button
@@ -444,11 +584,19 @@
                 '${name}',
                 'OUT'
             )">
-            SHIFT OUT
+
+            🔴 SHIFT OUT
+
         </button>
-    `;
+
+    </div>
+
+</div>
+
+`;
 
         }
+
 
         // ========================================
         // SAVE
@@ -459,6 +607,13 @@
             name,
             status
         ) {
+
+            const buttons =
+                document.querySelectorAll(".btn");
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+            });
 
             const now = new Date();
 
@@ -471,6 +626,7 @@
                 String(now.getHours()).padStart(2, "0") + ":" +
                 String(now.getMinutes()).padStart(2, "0") + ":" +
                 String(now.getSeconds()).padStart(2, "0");
+
 
             const payload = {
 
@@ -486,12 +642,20 @@
 
             };
 
+            const controller =
+                new AbortController();
+
+            setTimeout(
+                () => controller.abort(),
+                10000
+            );
+
             document.getElementById("result").innerHTML =
                 `
-    <div class="info">
-        ⏳ Saving Attendance...
-    </div>
-    `;
+                <div class="info">
+                    ⏳ Saving Attendance...
+                </div>
+                `;
 
             try {
 
@@ -500,7 +664,8 @@
                         API_URL,
                         {
                             method: "POST",
-                            body: JSON.stringify(payload)
+                            body: JSON.stringify(payload),
+                            signal: controller.signal
                         }
                     );
 
@@ -564,20 +729,21 @@
 
                 document.getElementById("result").innerHTML =
                     `
-        <div class="success">
+<div class="success">
 
-            <h3>✅ Attendance Recorded</h3>
+    <h3>✅ Attendance Recorded</h3>
 
-            <p>${name}</p>
+    <hr>
 
-            <p>Shift ${status}</p>
+    <p><strong>${name}</strong></p>
 
-            <p><strong>${result.note}</strong></p>
+    <p>${status}</p>
 
-            <p>${payload.time}</p>
+    <p>${payload.time}</p>
 
-        </div>
-        `;
+</div>
+`;
+
 
             }
             catch (error) {
@@ -609,6 +775,51 @@
                 await startScanner();
 
             }, 3000);
+
+        }
+
+        function toggleTheme() {
+
+            document.body.classList.toggle(
+                "dark"
+            );
+
+            const isDark =
+                document.body.classList.contains(
+                    "dark"
+                );
+
+            localStorage.setItem(
+                "theme",
+                isDark
+                    ? "dark"
+                    : "light"
+            );
+
+            document.getElementById(
+                "themeBtn"
+            ).innerHTML =
+                isDark
+                    ? "☀️ Light Mode"
+                    : "🌙 Dark Mode";
+
+        }
+
+        const savedTheme =
+            localStorage.getItem(
+                "theme"
+            );
+
+        if (savedTheme === "dark") {
+
+            document.body.classList.add(
+                "dark"
+            );
+
+            document.getElementById(
+                "themeBtn"
+            ).innerHTML =
+                "☀️ Light Mode";
 
         }
 
